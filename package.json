@@ -1,0 +1,26 @@
+{
+  "name": "mongodb-data-layer-fundamentals-and-advanced-techniques-eliaslaquimane",
+  "version": "1.0.0",
+  "description": "## Setup Instructions",
+  "main": "insert_books.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eliaslaquimane/mongodb-data-layer-fundamentals-and-advanced-techniques-eliaslaquimane.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eliaslaquimane/mongodb-data-layer-fundamentals-and-advanced-techniques-eliaslaquimane/issues"
+  },
+  "homepage": "https://github.com/eliaslaquimane/mongodb-data-layer-fundamentals-and-advanced-techniques-eliaslaquimane#readme",
+  "dependencies": {
+    "mongodb": "^6.20.0"
+  }
+}
