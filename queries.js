@@ -532,9 +532,6 @@ const books = [
   }
 ];
 
-
-
-
 // create async function with name queriesDB
 
 async function queriesDB(){
@@ -559,7 +556,111 @@ async function queriesDB(){
             console.log('collection dropped successfully');
         }
 
+        // insert the books in collection
+        const result = await collection.insertMany(books);
+        console.log('bookds inserted successfully');
 
+        // Find all books
+        console.log('\nInserted Books: ')
+            const insertedBooks = await collection.find({}).toArray();
+            insertedBooks.forEach((book, index) => {
+                console.log(`${index + 1}. "${book.title}" by ${book.author} (${book.published_year})`);
+        });
+
+        // Find books by a specific author
+        const findBookByAuthor = await collection.find({author: "Benjamin Graham" }).toArray();
+        if (findBookByAuthor.length > 0) {
+            console.log(findBookByAuthor);
+        }else{
+            console.log('\nbook not founded!\n');
+        }
+
+        // Find all books in a specific genre
+        const findBookByGenre = await collection.find({ genre: "Finance" }).toArray();
+        console.log(" Finance Books:", findBookByGenre);
+
+        // Find books published after a certain year
+        const findBookByPubAfterYear = await collection.find({ published_year: { $gt: 2015 } }).toArray();
+        console.log(" Books published after 2015:", findBookByPubAfterYear);
+
+        // Update the price of a specific book
+        const updatePriceResult = await collection.updateOne(
+        { title: "The Hobbit" },
+        { $set: { price: 13.99 } }
+        );
+        console.log(" Price update result:", updatePriceResult.modifiedCount);
+
+        // Delete a book by its title
+        const deleteByResult = await collection.deleteOne({ title: "1986" });
+        console.log(" Delete result:", deleteByResult.deletedCount);
+
+        // Find books that are in stock and published after 2010
+        const findInStockRecent = await collection.find({
+        in_stock: true,
+        published_year: { $gt: 2010 }
+        }).toArray();
+        console.log(" In-stock books after 2010:", findInStockRecent);
+
+        // Use projection to return only title, author, and price
+        const showOnlyBooks = await collection.find({}, {
+        projection: { title: 1, author: 1, price: 1, _id: 0 }
+        }).toArray();
+        console.log(" Projected fields:", showOnlyBooks);
+
+        // Sort books by price ascending
+        const sortedPriceAsc = await collection.find().sort({ price: 1 }).toArray();
+        console.log(" Books sorted by price (asc):", sortedPriceAsc);
+
+        // Sort books by price descending
+        const sortedPriceDesc = await collection.find().sort({ price: -1 }).toArray();
+        console.log(" Books sorted by price (desc):", sortedPriceDesc);
+
+        // Pagination: limit 5 books, skip first 5
+        const paginationLimit = await collection.find().skip(5).limit(5).toArray();
+        console.log(" Page 2 (books 6–10):", paginationLimit);
+
+        // Average price of books by genre
+        const avgPriceBooksByGenre = await collection.aggregate([
+            { $group: { _id: "$genre", averagePrice: { $avg: "$price" } } }
+        ]).toArray();
+        console.log(" Average price by genre:", avgPriceBooksByGenre);
+
+        // Author with the most books
+        const topAuthorBooks = await collection.aggregate([
+            { $group: { _id: "$author", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 1 }
+        ]).toArray();
+        console.log(" Author with most books:", topAuthorBooks);
+
+        // Group books by publication decade and count them
+        const groupBooksByDecade = await collection.aggregate([
+            {
+                $group: {
+                _id: {
+                    $concat: [
+                    { $toString: { $subtract: ["$published_year", { $mod: ["$published_year", 10] }] } },
+                    "s"
+                    ]
+                },
+                count: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]).toArray();
+        console.log(" Books grouped by decade:", groupBooksByDecade);
+
+        // Create an index on the title field
+        const titleIndexField = await collection.createIndex({ title: 1 });
+        console.log(" Index created on title:", titleIndexField);
+
+        // Create a compound index on author and published_year
+        const compoundIndex = await collection.createIndex({ author: 1, published_year: -1 });
+        console.log(" Compound index on author and published_year:", compoundIndex);
+
+        // Use explain() to show performance improvement
+        const showPerformace = await collection.find({ title: "Dune" }).explain("executionStats");
+        console.log(" Explain output for title search:", showPerformace.executionStats);
 
     } catch(err){
         console.log('error occured: ', err)
@@ -569,7 +670,7 @@ async function queriesDB(){
     }
 }
 
-queriesDB()
+queriesDB().catch(console.error);
 
 
 
